@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import './animations.css'
 import Sidebar from './components/Sidebar.jsx'
 import MobileNav from './components/MobileNav.jsx'
 import Hero from './components/Hero.jsx'
@@ -7,12 +8,39 @@ import Projects from './components/Projects.jsx'
 import Services from './components/Services.jsx'
 import About from './components/About.jsx'
 import Contact from './components/Contact.jsx'
+import DragonCursor from './components/DragonCursor.jsx'
+import ScrollProgress from './components/ScrollProgress.jsx'
+import FloatingCTA from './components/FloatingCTA.jsx'
+import Critters from './components/Critters.jsx'
+import CritterPicker from './components/CritterPicker.jsx'
+import { CRITTERS_BY_ID, DEFAULT_CRITTERS } from './data/critters.js'
 
 const SECTION_IDS = ['home', 'projects', 'services', 'about', 'contact']
+const CRITTER_KEY = 'portfolio:critters'
+
+const loadCritters = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CRITTER_KEY))
+    if (Array.isArray(saved)) return saved.filter((id) => CRITTERS_BY_ID[id])
+  } catch {
+    /* ignore corrupt or unavailable storage */
+  }
+  return DEFAULT_CRITTERS
+}
 
 export default function App() {
   const [active, setActive] = useState('home')
   const observerRef = useRef(null)
+  const [critters, setCritters] = useState(loadCritters)
+  const [pickerOpen, setPickerOpen] = useState(false)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CRITTER_KEY, JSON.stringify(critters))
+    } catch {
+      /* storage unavailable */
+    }
+  }, [critters])
 
   useEffect(() => {
     const sections = SECTION_IDS.map((id) => document.getElementById(id)).filter(Boolean)
@@ -36,18 +64,41 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-ink text-cream">
-      <Sidebar active={active} onNavigate={handleNavigate} />
-      <MobileNav active={active} onNavigate={handleNavigate} />
+    <div className="min-h-screen overflow-x-clip bg-ink text-cream">
+      <ScrollProgress />
+      <DragonCursor />
+      <Critters selected={critters} />
+      <Sidebar
+        active={active}
+        onNavigate={handleNavigate}
+        critterCount={critters.length}
+        critterOpen={pickerOpen}
+        onToggleCritters={() => setPickerOpen((o) => !o)}
+      />
+      <MobileNav
+        active={active}
+        onNavigate={handleNavigate}
+        critterOpen={pickerOpen}
+        onToggleCritters={() => setPickerOpen((o) => !o)}
+      />
+      <CritterPicker
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        selected={critters}
+        onChange={setCritters}
+      />
+      <FloatingCTA active={active} onNavigate={handleNavigate} />
 
-      <main className="md:ml-24 lg:ml-28">
-        <Hero onNavigate={handleNavigate} />
-        <TechMarquee />
-        <Projects />
-        <Services />
-        <About />
-        <Contact />
-      </main>
+      <div className="md:pl-24 lg:pl-28">
+        <main className="mx-auto w-full min-w-0 max-w-[1600px] pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
+          <Hero onNavigate={handleNavigate} />
+          <TechMarquee />
+          <Projects />
+          <Services />
+          <About />
+          <Contact />
+        </main>
+      </div>
     </div>
   )
 }

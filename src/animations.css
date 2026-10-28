@@ -1,0 +1,100 @@
+/* Extra motion layer — imported once from App.jsx. Plain CSS, so no Tailwind config changes needed. */
+
+@keyframes fx-shine {
+  0%   { transform: translateX(-120%) skewX(-20deg); }
+  100% { transform: translateX(380%) skewX(-20deg); }
+}
+.fx-shine-wrap { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.fx-shine {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 35%;
+  background: linear-gradient(90deg, transparent, rgba(61, 255, 138, 0.16), transparent);
+  transform: translateX(-120%) skewX(-20deg);
+}
+.group:hover .fx-shine { animation: fx-shine 900ms ease-out; }
+
+@keyframes fx-sheen {
+  0%, 55% { transform: translateX(-160%) skewX(-20deg); }
+  100%    { transform: translateX(380%) skewX(-20deg); }
+}
+.fx-sheen {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 40%; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: translateX(-160%) skewX(-20deg);
+  animation: fx-sheen 3.4s ease-in-out infinite;
+}
+
+@keyframes fx-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(61, 255, 138, 0.5); }
+  70%  { box-shadow: 0 0 0 14px rgba(61, 255, 138, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(61, 255, 138, 0); }
+}
+.fx-glow { animation: fx-glow 2.4s ease-out infinite; }
+
+@keyframes fx-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+.fx-float { animation: fx-float 5s ease-in-out infinite; }
+
+/* little "ring ring" shake every few seconds to catch the eye */
+@keyframes fx-wiggle {
+  0%, 84%, 100% { transform: rotate(0); }
+  87% { transform: rotate(-14deg); }
+  90% { transform: rotate(12deg); }
+  93% { transform: rotate(-8deg); }
+  96% { transform: rotate(4deg); }
+}
+.fx-wiggle { animation: fx-wiggle 5s ease-in-out infinite; }
+
+/* "scroll" hint only where there's room for it */
+.fx-scroll-hint { display: none; }
+@media (min-width: 768px) and (min-height: 760px) { .fx-scroll-hint { display: flex; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-sheen, .fx-glow, .fx-float, .fx-wiggle { animation: none !important; }
+  .group:hover .fx-shine { animation: none !important; }
+}
+
+/* wing flap for the mythical critters (see data/critters.js) */
+@keyframes crit-flap {
+  0%   { transform: scaleY(1) rotate(0deg); }
+  100% { transform: scaleY(0.72) rotate(-6deg); }
+}
+.crit-flap {
+  transform-box: fill-box;
+  transform-origin: 90% 100%;
+  animation: crit-flap 0.45s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .crit-flap { animation: none !important; }
+}
+
+/* ---- life for the critters ---- */
+[data-body] svg { overflow: visible; }
+.crit-leg-a, .crit-leg-b { transform-box: fill-box; transform-origin: 50% 0%; }
+[data-state='walk'] .crit-leg-a { animation: crit-leg 0.3s ease-in-out infinite alternate; }
+[data-state='walk'] .crit-leg-b { animation: crit-leg 0.3s ease-in-out infinite alternate-reverse; }
+@keyframes crit-leg { from { transform: rotate(-24deg); } to { transform: rotate(24deg); } }
+
+.crit-tail   { transform-box: fill-box; transform-origin: 100% 0%;  animation: crit-wag 0.7s ease-in-out infinite alternate; }
+.crit-tail-r { transform-box: fill-box; transform-origin: 100% 50%; animation: crit-wag 0.8s ease-in-out infinite alternate; }
+.crit-tail-bird { transform-origin: 24px 36px; animation: crit-wag-s 0.9s ease-in-out infinite alternate; }
+.crit-fan { transform-origin: 24px 40px; animation: crit-wag-s 1.2s ease-in-out infinite alternate; }
+@keyframes crit-wag   { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+@keyframes crit-wag-s { from { transform: rotate(-5deg); }  to { transform: rotate(5deg); } }
+
+[data-fx='slither'] svg { transform-origin: 50% 100%; animation: crit-slither 0.9s ease-in-out infinite alternate; }
+@keyframes crit-slither { from { transform: skewX(-7deg) scaleX(1); } to { transform: skewX(7deg) scaleX(0.96); } }
+[data-fx='float'] svg { animation: crit-float 1.8s ease-in-out infinite alternate; }
+@keyframes crit-float { from { transform: translateY(2px); } to { transform: translateY(-4px); } }
+[data-fx='breathe'] svg, [data-fx='trot'] svg { transform-origin: 50% 100%; animation: crit-breathe 2.4s ease-in-out infinite alternate; }
+@keyframes crit-breathe { from { transform: scale(1, 1); } to { transform: scale(1.02, 1.04); } }
+
+/* sparkle trail left behind by walking critters */
+.crit-trail { position: absolute; width: 5px; height: 5px; border-radius: 9999px; pointer-events: none; animation: crit-trail 0.9s ease-out forwards; }
+@keyframes crit-trail { from { opacity: 0.9; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-14px) scale(0.2); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .crit-leg-a, .crit-leg-b, .crit-tail, .crit-tail-r, .crit-tail-bird, .crit-fan,
+  [data-fx] svg, .crit-trail { animation: none !important; }
+}
